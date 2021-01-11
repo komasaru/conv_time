@@ -1,6 +1,7 @@
 #ifndef CONV_TIME_TIME_HPP_
 #define CONV_TIME_TIME_HPP_
 
+#include "delta_t.hpp"
 #include "file.hpp"
 
 #include <cmath>

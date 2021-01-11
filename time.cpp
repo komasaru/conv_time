@@ -1,20 +1,17 @@
-#include "delta_t.hpp"
 #include "time.hpp"
 
 namespace conv_time {
 // 定数
-constexpr char   kFLeapSec[13] = "LEAP_SEC.txt";
-constexpr char   kFDut1[9]     = "DUT1.txt";
-constexpr int    kJstOffset    = 9;                // JST offset from UTC
-constexpr int    kSecHour      = 3600;             // Seconds in a hour
-constexpr int    kSecDay       = 86400;            // Seconds in a day
-constexpr int    kJ2000        = 2451545;          // Julian Day of 2000-01-01 12:00:00
-constexpr double kJy           = 365.25;           // 1 Julian Year
-constexpr double kTtTai        = 32.184;           // TT - TAI
-constexpr double kLG           = 6.969290134e-10;  // for TCG
-constexpr double kLB           = 1.550519768e-8;   // for TCG, TDB
-constexpr double kT0           = 2443144.5003725;  // for TCG, TDB, TCB
-constexpr double kTdb0         = -6.55e-5;         // for TDB
+static constexpr int    kJstOffset    = 9;                // JST offset from UTC
+static constexpr int    kSecHour      = 3600;             // Seconds in a hour
+static constexpr int    kSecDay       = 86400;            // Seconds in a day
+static constexpr int    kJ2000        = 2451545;          // Julian Day of 2000-01-01 12:00:00
+static constexpr double kJy           = 365.25;           // 1 Julian Year
+static constexpr double kTtTai        = 32.184;           // TT - TAI
+static constexpr double kLG           = 6.969290134e-10;  // for TCG
+static constexpr double kLB           = 1.550519768e-8;   // for TCG, TDB
+static constexpr double kT0           = 2443144.5003725;  // for TCG, TDB, TCB
+static constexpr double kTdb0         = -6.55e-5;         // for TDB
 
 /*
  * @brief      コンストラクタ
@@ -362,7 +359,6 @@ int Time::get_utc_tai(
   struct tm t;
   std::stringstream ss;      // 対象年月日算出用
   std::string dt_t;          // 対象年月日
-  std::string f(kFLeapSec);  // ファイル名
   std::string buf;           // 1行分バッファ
   int i;                     // ループインデックス
   utc_tai = 0;               // 初期化
@@ -404,7 +400,6 @@ double Time::get_dut1(
   struct tm t;
   std::stringstream ss;    // 対象年月日算出用
   std::string dt_t;        // 対象年月日
-  std::string f(kFDut1);   // ファイル名
   std::string buf;         // 1行分バッファ
   int i;                   // ループインデックス
   dut1 = 0.0;              // 初期化
