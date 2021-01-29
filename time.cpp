@@ -21,11 +21,14 @@ static constexpr double kTdb0         = -6.55e-5;         // for TDB
  * @param[ref]  うるう秒一覧 (vector<vector<string>>)
  * @param[ref]  DUT1 一覧 (vector<vector<string>>)
  */
-Time::Time(struct timespec ts,
+Time::Time(
+    struct timespec ts,
     std::vector<std::vector<std::string>>& l_ls,
     std::vector<std::vector<std::string>>& l_dut) {
   try {
     this->ts      = ts;
+    this->l_ls    = l_ls;
+    this->l_dut   = l_dut;
     this->ts_tai  = {};
     this->ts_ut1  = {};
     this->ts_tt   = {};
