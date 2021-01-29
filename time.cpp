@@ -14,16 +14,16 @@ static constexpr double kT0           = 2443144.5003725;  // for TCG, TDB, TCB
 static constexpr double kTdb0         = -6.55e-5;         // for TDB
 
 /*
- * @brief      コンストラクタ
+ * @brief       コンストラクタ
  *
- * @param[in]  UTC(timespec)
+ * @param[in]   UTC(timespec)
+ * @param[ref]  うるう秒一覧 (vector<vector<string>>)
+ * @param[ref]  DUT1 一覧 (vector<vector<string>>)
  */
-Time::Time(struct timespec ts) {
+Time::Time(struct timespec ts,
+    std::vector<std::vector<std::string>>& l_ls,
+    std::vector<std::vector<std::string>>& l_dut) {
   try {
-    // Getting of Second, DUT1 list
-    File o_f;
-    if (!o_f.get_leap_sec_list(l_ls)) throw;
-    if (!o_f.get_dut1_list(l_dut)) throw;
     this->ts      = ts;
     this->ts_tai  = {};
     this->ts_ut1  = {};
@@ -31,8 +31,8 @@ Time::Time(struct timespec ts) {
     this->ts_tcg  = {};
     this->ts_tcb  = {};
     this->ts_tdb  = {};
-    this->utc_tai = get_utc_tai(l_ls, ts);
-    this->dut1    = get_dut1(l_dut, ts);
+    this->utc_tai = get_utc_tai(ts);
+    this->dut1    = get_dut1(ts);
     this->jd      = 0.0;
     this->t       = 0.0;
     this->dlt_t   = 0.0;
@@ -350,12 +350,10 @@ double Time::jd2t(double jd_a) {
 /*
  * @brief       UTC - TAI (協定世界時と国際原子時の差 = うるう秒の総和) 取得
  *
- * @param[ref]  うるう秒一覧 (vector<vector<string>>)
  * @param[in]   UTC (timespec)
  * @return      UTC - TAI (int)
  */
-int Time::get_utc_tai(
-    std::vector<std::vector<std::string>>& l_ls, struct timespec ts) {
+int Time::get_utc_tai(struct timespec ts) {
   struct tm t;
   std::stringstream ss;      // 対象年月日算出用
   std::string dt_t;          // 対象年月日
@@ -391,12 +389,10 @@ int Time::get_utc_tai(
 /*
  * @brief       DUT1 (UT1(世界時1) と UTC(協定世界時)の差) 取得
  *
- * @param[ref]  DUT1 一覧
  * @param[in]   UTC (timespec)
  * @return      DUT1 (double)
  */
-double Time::get_dut1(
-    std::vector<std::vector<std::string>>& l_dut, struct timespec ts) {
+double Time::get_dut1(struct timespec ts) {
   struct tm t;
   std::stringstream ss;    // 対象年月日算出用
   std::string dt_t;        // 対象年月日

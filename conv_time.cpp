@@ -28,6 +28,7 @@
       [NASA - Polynomial Expressions for Delta T](http://eclipse.gsfc.nasa.gov/SEcat5/deltatpoly.html)
 ***********************************************************/
 #include "common.hpp"
+#include "file.hpp"
 #include "time.hpp"
 
 #include <cstdlib>   // for EXIT_XXXX
@@ -37,6 +38,7 @@
 #include <string>
 
 int main(int argc, char* argv[]) {
+  namespace ns = conv_time;
   std::string tm_str;   // time string
   unsigned int s_tm;    // size of time string
   int s_nsec;           // size of nsec string
@@ -44,7 +46,8 @@ int main(int argc, char* argv[]) {
   struct timespec jst;  // JST
   struct timespec utc;  // UTC
   struct tm t = {};     // for work
-  namespace ns = conv_time;
+  std::vector<std::vector<std::string>> l_ls;   // List of Leap Second
+  std::vector<std::vector<std::string>> l_dut;  // List of DUT1
 
   try {
     // 日付取得
@@ -74,11 +77,16 @@ int main(int argc, char* argv[]) {
       }
     }
 
+    // うるう秒, DUT1 一覧取得
+    ns::File o_f;
+    if (!o_f.get_leap_sec_list(l_ls)) throw;
+    if (!o_f.get_dut1_list(l_dut)) throw;
+
     // JST -> UTC
     utc = ns::jst2utc(jst);
 
     // Calculation & display
-    ns::Time o_tm(utc);
+    ns::Time o_tm(utc, l_ls, l_dut);
     std::cout << "            JST: "
               << ns::gen_time_str(jst) << std::endl;
     std::cout << "               ( UNIX time: "
@@ -117,7 +125,6 @@ int main(int argc, char* argv[]) {
               << ns::gen_time_str(o_tm.calc_tcb()) << std::endl;
     std::cout << "            TDB: "
               << ns::gen_time_str(o_tm.calc_tdb()) << std::endl;
-
   } catch (...) {
       std::cerr << "EXCEPTION!" << std::endl;
       return EXIT_FAILURE;
