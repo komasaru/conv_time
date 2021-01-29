@@ -1,6 +1,7 @@
 #include "time.hpp"
 
 namespace conv_time {
+
 // 定数
 static constexpr int    kJstOffset    = 9;                // JST offset from UTC
 static constexpr int    kSecHour      = 3600;             // Seconds in a hour
