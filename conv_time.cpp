@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
       // コマンドライン引数より取得
       tm_str = argv[1];
       s_tm = tm_str.size();
-      if (s_tm > 23) {
+      if (s_tm > 23) { 
         std::cout << "[ERROR] Over 23-digits!" << std::endl;
         return EXIT_FAILURE;
       }
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
     }
 
     // うるう秒, DUT1 一覧取得
-    ns::File o_f;
+    ns::File o_f; 
     if (!o_f.get_leap_sec_list(l_ls)) throw;
     if (!o_f.get_dut1_list(l_dut)) throw;
 
