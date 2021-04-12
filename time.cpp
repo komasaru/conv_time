@@ -3,32 +3,78 @@
 namespace conv_time {
 
 // 定数
-static constexpr int    kJstOffset    = 9;                // JST offset from UTC
-static constexpr int    kSecHour      = 3600;             // Seconds in a hour
-static constexpr int    kSecDay       = 86400;            // Seconds in a day
-static constexpr int    kJ2000        = 2451545;          // Julian Day of 2000-01-01 12:00:00
-static constexpr double kJy           = 365.25;           // 1 Julian Year
-static constexpr double kTtTai        = 32.184;           // TT - TAI
-static constexpr double kLG           = 6.969290134e-10;  // for TCG
-static constexpr double kLB           = 1.550519768e-8;   // for TCG, TDB
-static constexpr double kT0           = 2443144.5003725;  // for TCG, TDB, TCB
-static constexpr double kTdb0         = -6.55e-5;         // for TDB
+static constexpr unsigned int kJstOffset = 9;                // JST offset from UTC
+static constexpr unsigned int kSecHour   = 3600;             // Seconds in an hour
+static constexpr unsigned int kSecDay    = 86400;            // Seconds in a day
+static constexpr unsigned int kJ2000     = 2451545;          // Julian Day of 2000-01-01 12:00:00
+static constexpr double       kJy        = 365.25;           // 1 Julian Year
+static constexpr double       kTtTai     = 32.184;           // TT - TAI
+static constexpr double       kLG        = 6.969290134e-10;  // for TCG
+static constexpr double       kLB        = 1.550519768e-8;   // for TCG, TDB
+static constexpr double       kT0        = 2443144.5003725;  // for TCG, TDB, TCB
+static constexpr double       kTdb0      = -6.55e-5;         // for TDB
 
 /*
- * @brief       コンストラクタ
+ * @brief      変換: JST -> UTC
  *
- * @param[in]   UTC(timespec)
- * @param[ref]  うるう秒一覧 (vector<vector<string>>)
- * @param[ref]  DUT1 一覧 (vector<vector<string>>)
+ * @param[in]  JST (timespec)
+ * @return     UTC (timespec)
  */
-Time::Time(
-    struct timespec ts,
-    std::vector<std::vector<std::string>>& l_ls,
-    std::vector<std::vector<std::string>>& l_dut) {
+struct timespec jst2utc(struct timespec ts_jst) {
+  struct timespec ts;
+
   try {
+    ts.tv_sec  = ts_jst.tv_sec - kJstOffset * kSecHour;
+    ts.tv_nsec = ts_jst.tv_nsec;
+  } catch (...) {
+    throw;
+  }
+
+  return ts;
+}
+
+/*
+ * @brief      日時文字列生成
+ *
+ * @param[in]  日時 (timespec)
+ * @return     日時文字列 (string)
+ */
+std::string gen_time_str(struct timespec ts) {
+  struct tm t;
+  std::stringstream ss;
+  std::string str_tm;
+
+  try {
+    localtime_r(&ts.tv_sec, &t);
+    ss << std::setfill('0')
+       << std::setw(4) << t.tm_year + 1900 << "-"
+       << std::setw(2) << t.tm_mon + 1     << "-"
+       << std::setw(2) << t.tm_mday        << " "
+       << std::setw(2) << t.tm_hour        << ":"
+       << std::setw(2) << t.tm_min         << ":"
+       << std::setw(2) << t.tm_sec         << "."
+       << std::setw(3) << ts.tv_nsec / 1000000;
+    return ss.str();
+  } catch (...) {
+    throw;
+  }
+}
+
+/*
+ * @brief      コンストラクタ
+ *
+ * @param[in]  UTC(timespec)
+ */
+Time::Time(struct timespec ts) {
+  try {
+    // うるう秒, DUT1 一覧取得
+    l_ls.reserve(50);    // 予めメモリ確保
+    l_dut.reserve(250);  // 予めメモリ確保
+    File o_f;
+    if (!o_f.get_leap_sec_list(l_ls)) throw;
+    if (!o_f.get_dut1_list(l_dut)) throw;
+    // その他初期設定
     this->ts      = ts;
-    this->l_ls    = l_ls;
-    this->l_dut   = l_dut;
     this->ts_tai  = {};
     this->ts_ut1  = {};
     this->ts_tt   = {};

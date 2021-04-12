@@ -27,8 +27,6 @@
     - その他の期間は NASA 提供の略算式により算出
       [NASA - Polynomial Expressions for Delta T](http://eclipse.gsfc.nasa.gov/SEcat5/deltatpoly.html)
 ***********************************************************/
-#include "common.hpp"
-#include "file.hpp"
 #include "time.hpp"
 
 #include <cstdlib>   // for EXIT_XXXX
@@ -47,8 +45,6 @@ int main(int argc, char* argv[]) {
   struct timespec jst;  // JST
   struct timespec utc;  // UTC
   struct tm t = {};     // for work
-  std::vector<std::vector<std::string>> l_ls;   // List of Leap Second
-  std::vector<std::vector<std::string>> l_dut;  // List of DUT1
 
   try {
     // 日付取得
@@ -78,18 +74,11 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    // うるう秒, DUT1 一覧取得
-    l_ls.reserve(50);    // 予めメモリ確保
-    l_dut.reserve(250);  // 予めメモリ確保
-    ns::File o_f; 
-    if (!o_f.get_leap_sec_list(l_ls)) throw;
-    if (!o_f.get_dut1_list(l_dut)) throw;
-
     // JST -> UTC
     utc = ns::jst2utc(jst);
 
     // Calculation & display
-    ns::Time o_tm(utc, l_ls, l_dut);
+    ns::Time o_tm(utc);
     std::cout << "            JST: "
               << ns::gen_time_str(jst) << std::endl;
     std::cout << "               ( UNIX time: "
